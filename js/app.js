@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const state = {
         user: null,
         mrns: [],
+        users: [],
         departments: [],
         locations: [],
         selectedMrn: null
@@ -93,8 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('user-avatar').textContent = state.user.full_name.charAt(0);
         
         // Hide/Show role specific elements
+        const isAdmin = state.user.role === 'admin';
         const isRequester = state.user.role === 'requester';
+        
         document.getElementById('nav-new-request').classList.toggle('hidden', !isRequester);
+        document.getElementById('nav-users').classList.toggle('hidden', !isAdmin);
         document.getElementById('btn-create-new').classList.toggle('hidden', !isRequester);
         
         loadData();
@@ -109,6 +113,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.getElementById(nav.dataset.target).classList.remove('hidden');
+            
+            // If navigating to user management, load users
+            if (nav.dataset.target === 'user-management') {
+                loadUsers();
+            }
             
             // Close sidebar on mobile
             sidebar.classList.remove('active');
@@ -478,6 +487,109 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.form-actions .btn-back').addEventListener('click', () => {
         document.getElementById('mrn-form').reset();
         document.querySelector('[data-target="dashboard-main"]').click();
+    });
+
+    // User Management Logic
+    async function loadUsers() {
+        try {
+            const res = await fetch('api/users.php');
+            if (res.ok) {
+                state.users = await res.json();
+                renderUsers();
+            }
+        } catch (e) {
+            console.error('Failed to load users', e);
+        }
+    }
+
+    function renderUsers() {
+        const tbody = document.getElementById('user-table-body');
+        tbody.innerHTML = '';
+        
+        state.users.forEach(u => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${u.full_name}</strong></td>
+                <td>${u.username}</td>
+                <td><span class="status-badge" style="background:#e5e7eb; color:#374151;">${u.role.toUpperCase()}</span></td>
+                <td style="color:#6b7280">${new Date(u.created_at).toLocaleDateString()}</td>
+                <td>
+                    <button class="action-btn btn-delete-user" style="background:#fee2e2; color:#ef4444;" data-id="${u.id}">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // User Management Events
+    document.getElementById('btn-open-user-modal').addEventListener('click', () => {
+        document.getElementById('user-modal').classList.remove('hidden');
+    });
+
+    document.getElementById('user-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.innerText = 'Creating...';
+        btn.disabled = true;
+
+        const payload = {
+            full_name: document.getElementById('manage-name').value,
+            username: document.getElementById('manage-username').value,
+            password: document.getElementById('manage-password').value,
+            role: document.getElementById('manage-role').value
+        };
+
+        try {
+            const res = await fetch('api/users.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById('user-form').reset();
+                document.getElementById('user-modal').classList.add('hidden');
+                loadUsers();
+            } else {
+                alert(data.error || 'Failed to create user');
+            }
+        } catch (err) {
+            alert('Network error');
+        } finally {
+            btn.innerText = 'Save User';
+            btn.disabled = false;
+        }
+    });
+
+    document.getElementById('user-table-body').addEventListener('click', async (e) => {
+        if (e.target.classList.contains('btn-delete-user')) {
+            if (!confirm('Are you sure you want to delete this user?')) return;
+            const id = e.target.dataset.id;
+            try {
+                const res = await fetch(`api/users.php?id=${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadUsers();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to delete user');
+                }
+            } catch (err) {
+                alert('Network error');
+            }
+        }
+    });
+
+    // Close Modals
+    function closeModals() {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
+    }
+
+    document.querySelectorAll('.btn-close-modal').forEach(btn => {
+        btn.addEventListener('click', closeModals);
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-overlay')) closeModals();
     });
 
     // Init Validation

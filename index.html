@@ -55,6 +55,7 @@
                 <nav>
                     <a href="#" class="nav-item active" data-target="dashboard-main">Dashboard</a>
                     <a href="#" class="nav-item hidden" id="nav-new-request" data-target="new-request">New Request</a>
+                    <a href="#" class="nav-item hidden" id="nav-users" data-target="user-management">User Management</a>
                 </nav>
                 <div class="spacer"></div>
                 <button id="btn-logout" class="btn outline">Log Out</button>
@@ -178,6 +179,31 @@
                         </form>
                     </div>
                 </div>
+
+                <!-- User Management Section (Admin Only) -->
+                <div id="user-management" class="section hidden">
+                    <header>
+                        <h2>User Management</h2>
+                        <button id="btn-open-user-modal" class="btn primary">+ Create New User</button>
+                    </header>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
@@ -196,6 +222,46 @@
                 <button class="btn outline btn-close-modal">Close</button>
                 <button class="btn primary" id="btn-modal-print">Print MRN</button>
             </footer>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="user-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <header class="modal-header">
+                <h3>System User</h3>
+                <button class="btn-close-modal">✕</button>
+            </header>
+            <form id="user-form">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="manage-name" required placeholder="Display name">
+                    </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="manage-username" required placeholder="Login username">
+                    </div>
+                    <div class="form-group">
+                        <label>Initial Password</label>
+                        <input type="password" id="manage-password" required placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>Access Role</label>
+                        <select id="manage-role" required>
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="coo">COO (Approver)</option>
+                            <option value="requester">Requester</option>
+                            <option value="fulfillment">Fulfillment (Stores)</option>
+                        </select>
+                    </div>
+                </div>
+                <footer class="modal-footer">
+                    <button type="button" class="btn outline btn-close-modal">Cancel</button>
+                    <button type="submit" class="btn primary">Save User</button>
+                </footer>
+            </form>
         </div>
     </div>
 
