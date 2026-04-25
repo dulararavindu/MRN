@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRN Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=1.1">
+</head>
+<body>
+    <div id="app">
+        <!-- Login View -->
+        <div id="view-login" class="view active">
+            <div class="login-container">
+                <div class="login-card glass">
+                    <h1>MRN System</h1>
+                    <p class="subtitle">Sign in to manage material requests</p>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" required placeholder="e.g. requester1">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" required placeholder="••••••••">
+                        </div>
+                        <div id="login-error" class="error-text hidden"></div>
+                        <button type="submit" class="btn primary full-width">Sign In</button>
+                    </form>
+                    <div class="demo-hints">
+                        <p><strong>Demo Logins (pass: 12345)</strong></p>
+                        <ul>
+                            <li>Requester: <code>requester1</code></li>
+                            <li>COO: <code>coo</code></li>
+                            <li>Fulfillment: <code>inventory</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="view-dashboard" class="view hidden">
+            <div class="sidebar">
+                <div class="brand">MRN System</div>
+                <div class="user-info">
+                    <div class="avatar" id="user-avatar">A</div>
+                    <div class="details">
+                        <div class="name" id="user-name">User Name</div>
+                        <div class="role" id="user-role">Role</div>
+                    </div>
+                </div>
+                <nav>
+                    <a href="#" class="nav-item active" data-target="dashboard-main">Dashboard</a>
+                    <a href="#" class="nav-item hidden" id="nav-new-request" data-target="new-request">New Request</a>
+                </nav>
+                <div class="spacer"></div>
+                <button id="btn-logout" class="btn outline">Log Out</button>
+            </div>
+            
+            <div id="sidebar-overlay" class="sidebar-overlay"></div>
+            <main class="main-content">
+                <button id="sidebar-toggle" class="sidebar-toggle">☰</button>
+                <!-- Main Dashboard List -->
+                <div id="dashboard-main" class="section active">
+                    <header>
+                        <h2>Material Requests</h2>
+                        <button id="btn-create-new" class="btn primary hidden">+ New MRN</button>
+                    </header>
+                    
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <h3>Total</h3>
+                            <div class="val" id="stat-total">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Pending</h3>
+                            <div class="val" id="stat-pending">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Approved</h3>
+                            <div class="val" id="stat-approved">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Fulfilled</h3>
+                            <div class="val" id="stat-fulfilled">0</div>
+                        </div>
+                    </div>
+
+                    <div class="filters-row">
+                        <div class="search-box">
+                            <input type="text" id="filter-search" placeholder="Search by MRN, items, requester...">
+                        </div>
+                        <div class="status-filters">
+                            <select id="filter-status">
+                                <option value="all">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="fulfilled">Fulfilled</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>MRN No.</th>
+                                    <th>Items</th>
+                                    <th>Dept & Loc</th>
+                                    <th>Requester</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mrn-table-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- New Request Form -->
+                <div id="new-request" class="section hidden">
+                    <header>
+                        <h2>Create New MRN</h2>
+                        <button class="btn ghost btn-back">← Back</button>
+                    </header>
+                    <div class="form-card">
+                        <form id="mrn-form">
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>Department</label>
+                                    <select id="mrn-dept" required>
+                                        <option value="">Select Dept</option>
+                                    </select>
+                                </div>
+                                <div class="form-group half">
+                                    <label>Location</label>
+                                    <select id="mrn-loc" required>
+                                        <option value="">Select Location</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Items Section -->
+                            <div class="items-section" style="background:#f9fafb; padding:20px; border-radius:12px; margin-bottom:24px; border:1px solid var(--border);">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                    <label style="margin:0; font-size:15px; color:#111827;">Requested Items</label>
+                                    <button type="button" id="btn-add-item" class="btn ghost" style="padding:6px 12px; font-size:13px; background:var(--surface); border:1px solid #d1d5db;">+ Add Another Item</button>
+                                </div>
+                                <div id="items-container">
+                                    <div class="form-row item-row" style="margin-bottom:10px;">
+                                        <div class="form-group" style="flex:2; margin:0;">
+                                            <input type="text" class="item-name" placeholder="Item Name or Description" required>
+                                        </div>
+                                        <div class="form-group" style="flex:1; margin:0;">
+                                            <input type="number" class="item-qty" placeholder="Quantity" min="1" required>
+                                        </div>
+                                        <!-- Keep the first item undeleteable for safety, or allow delete if we enforce at least 1 -->
+                                        <button type="button" class="btn outline btn-remove-item" style="height:48px; border-color:transparent; color:#ef4444; width:48px; padding:0; background:transparent;" disabled></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Purpose / Justification (Optional)</label>
+                                <textarea id="mrn-purpose" rows="4"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn outline btn-back">Cancel</button>
+                                <button type="submit" class="btn primary">Submit Request</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- View Modal -->
+    <div id="view-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <header class="modal-header">
+                <h3>MRN Details</h3>
+                <button class="btn-close-modal">✕</button>
+            </header>
+            <div class="modal-body" id="modal-content">
+                <!-- Content injected via JS -->
+            </div>
+            <footer class="modal-footer">
+                <button class="btn outline btn-close-modal">Close</button>
+                <button class="btn primary" id="btn-modal-print">Print MRN</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Print Template -->
+    <div id="print-template" style="display:none;">
+        <div class="print-header">
+            <div class="print-brand">Amaranayaka Holdings</div>
+            <div class="print-title">Material Requisition Note</div>
+        </div>
+        
+        <table class="print-meta-table">
+            <tr>
+                <td width="15%"><strong>MRN No:</strong></td>
+                <td width="35%" id="print-mrn-id"></td>
+                <td width="15%"><strong>Date:</strong></td>
+                <td width="35%" id="print-mrn-date"></td>
+            </tr>
+            <tr>
+                <td><strong>Requester:</strong></td>
+                <td id="print-mrn-requester"></td>
+                <td><strong>Status:</strong></td>
+                <td id="print-mrn-status"></td>
+            </tr>
+            <tr>
+                <td><strong>Department:</strong></td>
+                <td id="print-mrn-dept"></td>
+                <td><strong>Location:</strong></td>
+                <td id="print-mrn-loc"></td>
+            </tr>
+            <tr>
+                <td><strong>Purpose:</strong></td>
+                <td colspan="3" id="print-mrn-purpose"></td>
+            </tr>
+        </table>
+
+        <div style="margin-top:20px; font-weight:bold; margin-bottom:5px;">Requested Items</div>
+        <table class="print-items-table">
+            <thead>
+                <tr>
+                    <th width="10%">No.</th>
+                    <th width="70%" style="text-align:left;">Description</th>
+                    <th width="20%" style="text-align:right;">Quantity</th>
+                </tr>
+            </thead>
+            <tbody id="print-mrn-items">
+                <!-- Dynamically populated -->
+            </tbody>
+        </table>
+
+        <div class="print-signatures">
+            <div class="sig-box">
+                <div class="sig-line"></div>
+                <div class="sig-label">Requested By</div>
+            </div>
+            <div class="sig-box">
+                <div class="sig-line">
+                    <div id="print-signature-coo" class="signature-display"></div>
+                </div>
+                <div class="sig-label">Department Head / COO (Approved By)</div>
+            </div>
+            <div class="sig-box">
+                <div class="sig-line"></div>
+                <div class="sig-label">Store Keeper (Issued By)</div>
+            </div>
+        </div>
+        
+        <div style="margin-top:40px; font-size:11px; text-align:center; color:#666;">
+            Generated by MRN Management System • Date Printed: <span id="print-current-date"></span>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=1.1"></script>
+</body>
+</html>
