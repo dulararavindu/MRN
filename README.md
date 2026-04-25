@@ -47,10 +47,21 @@ $password = '';     // Change if you have a MySQL password
 Navigate to [http://localhost/MRN/](http://localhost/MRN/) in your browser.
 
 ## 🔑 Demo Accounts
-*All passwords are `12345`*
+*All passwords are `12345`* or 'password123' (need to check the database for the exact password)
 - **Requester**: `requester1`
 - **COO (Approver)**: `coo`
 - **Fulfillment (Stores)**: `inventory`
+
+## 🔒 Security & Password Hashing
+
+The system uses industry-standard security practices for password storage:
+
+- **Hashing Algorithm**: **Bcrypt** (via PHP's `PASSWORD_DEFAULT`).
+- **Implementation**: 
+  - Passwords are never stored in plain text.
+  - Verification is handled by `password_verify()`.
+  - Hashing is handled by `password_hash()`.
+- **Demo Security**: If you need to generate new user hashes, you can use the included `hash.php` script or any online Bcrypt generator.
 
 ## 🛠️ Troubleshooting & Error Fixing
 
