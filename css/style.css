@@ -775,16 +775,24 @@ header h2 {
 }
 
 .btn-close-modal {
-    background: transparent;
-    border: none;
-    font-size: 20px;
-    color: var(--text-main);
+    background: var(--surface);
+    border: 2px solid var(--primary);
+    border-radius: 6px;
+    color: var(--primary);
+    font-size: 22px;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: background 0.2s ease, color 0.2s ease;
+    padding: 10px 14px;
+    line-height: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-close-modal:hover {
-    color: var(--text-main);
+    background: var(--primary);
+    color: white;
 }
 
 .modal-body {
